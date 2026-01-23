@@ -5,9 +5,10 @@ import EstimateDetail from '@/components/EstimateDetail'
 export default async function EstimateDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const estimate = await getEstimate(params.id)
+  const { id } = await params
+  const estimate = await getEstimate(id)
 
   if (!estimate) {
     notFound()

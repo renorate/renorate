@@ -11,15 +11,16 @@ const messageSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const data = messageSchema.parse(body)
 
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         homeownerId: true,
@@ -44,7 +45,7 @@ export async function POST(
 
     const message = await prisma.message.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         senderId: data.senderId,
         content: data.content,
       },
@@ -80,11 +81,12 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const messages = await prisma.message.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       include: {
         sender: {
           select: {
