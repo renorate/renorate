@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite doesn't support enums, so we use String with @default
+// UserRole: HOMEOWNER | CONTRACTOR
+// SubscriptionStatus: FREE | ACTIVE | CANCELLED | EXPIRED
+// ProjectStatus: DRAFT | PENDING | ACTIVE | COMPLETED | CANCELLED
+// MessageType: PROJECT_UPDATE | PAYMENT | TIMELINE | QUESTION | GENERAL
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  password          String
+  name              String
+  phone             String?
+  role              String // HOMEOWNER | CONTRACTOR
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  subscription      Subscription?
+  homeownerProjects Project[]         @relation("HomeownerProjects")
+  contractorProjects Project[]        @relation("ContractorProjects")
+  messages          Message[]
+  estimates         Estimate[]
+  
+  // Contractor specific
+  contractorProfile ContractorProfile?
+}
+
+model Subscription {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status            String @default("FREE") // FREE | ACTIVE | CANCELLED | EXPIRED
+  planType          String?           // "homeowner" or "contractor"
+  startDate         DateTime?
+  endDate           DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model ContractorProfile {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName       String?
+  licenseNumber     String?
+  specialties       String?           // JSON array of specialties
+  yearsExperience   Int?
+  bio               String?
+  rating            Float             @default(0)
+  reviewCount       Int               @default(0)
+  isVerified        Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model Project {
+  id                String            @id @default(cuid())
+  title             String
+  description       String?
+  projectType       String
+  address           String
+  zipCode           String
+  status            String @default("DRAFT") // DRAFT | PENDING | ACTIVE | COMPLETED | CANCELLED
+  
+  // Relations
+  homeownerId       String
+  homeowner         User              @relation("HomeownerProjects", fields: [homeownerId], references: [id])
+  contractorId      String?
+  contractor        User?             @relation("ContractorProjects", fields: [contractorId], references: [id])
+  
+  // Financial
+  budget            Float             @default(0)
+  deposit           Float             @default(0)
+  paidAmount        Float             @default(0)
+  balance           Float             @default(0)
+  
+  // Timeline
+  startDate         DateTime?
+  expectedEndDate   DateTime?
+  actualEndDate     DateTime?
+  
+  // Relations
+  estimate          Estimate?
+  messages          Message[]
+  milestones        Milestone[]
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model Estimate {
+  id          String      @id @default(cuid())
+  clientName  String
+  clientPhone String
+  clientEmail String
+  address     String
+  zipCode     String
+  projectType String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  contractorId String?
+  contractor   User?      @relation(fields: [contractorId], references: [id])
+  projectId    String?    @unique
+  project      Project?   @relation(fields: [projectId], references: [id])
+  lineItems   LineItem[]
+  totalAmount Float       @default(0)
+}
+
+model LineItem {
+  id          String   @id @default(cuid())
+  estimateId  String
+  estimate    Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float
+  unit        String
+  notes       String?
+  laborCost   Float    @default(0)
+  materialCost Float   @default(0)
+  permitCost  Float    @default(0)
+  disposalCost Float   @default(0)
+  subtotal    Float    @default(0)
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User        @relation(fields: [senderId], references: [id])
+  messageType String @default("GENERAL") // PROJECT_UPDATE | PAYMENT | TIMELINE | QUESTION | GENERAL
+  subject     String?
+  content     String
+  isRead      Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  isCompleted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Settings {
+  id              String   @id @default("default")
+  defaultMarkup   Float    @default(0.25) // 25% markup
+  laborRate       Float    @default(75.0) // $75/hour
+  permitFeeEnabled Boolean @default(true)
+  updatedAt       DateTime @updatedAt
+}
