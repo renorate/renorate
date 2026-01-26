@@ -17,11 +17,20 @@ interface LineItem {
 
 interface Estimate {
   id: string
-  clientName: string
-  clientPhone: string
-  clientEmail: string
-  address: string
-  zipCode: string
+  clientName: string | null
+  clientPhone: string | null
+  clientEmail: string | null
+  address: string | null
+  zipCode: string | null
+  clientId: string | null
+  client: {
+    id: string
+    name: string
+    email: string | null
+    phone: string | null
+    address: string | null
+    zipCode: string | null
+  } | null
   projectType: string
   createdAt: Date
   totalAmount: number
@@ -45,11 +54,11 @@ export default function EstimateDetail({ estimate }: { estimate: Estimate }) {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    clientName: estimate.clientName,
-    clientPhone: estimate.clientPhone,
-    clientEmail: estimate.clientEmail,
-    address: estimate.address,
-    zipCode: estimate.zipCode,
+    clientName: estimate.clientName || estimate.client?.name || '',
+    clientPhone: estimate.clientPhone || estimate.client?.phone || '',
+    clientEmail: estimate.clientEmail || estimate.client?.email || '',
+    address: estimate.address || estimate.client?.address || '',
+    zipCode: estimate.zipCode || estimate.client?.zipCode || '',
     projectType: estimate.projectType,
   })
   const [lineItems, setLineItems] = useState<LineItem[]>(

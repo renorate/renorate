@@ -9,7 +9,7 @@ const messageSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireUser()
@@ -18,12 +18,13 @@ export async function POST(
     }
     const { user } = authResult
 
+    const { id } = await params
     const body = await request.json()
     const data = messageSchema.parse(body)
 
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         homeownerId: true,
@@ -48,7 +49,7 @@ export async function POST(
 
     const message = await prisma.message.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         senderId: user.id,
         content: data.content,
       },
@@ -84,7 +85,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireUser()
@@ -93,9 +94,11 @@ export async function GET(
     }
     const { user } = authResult
 
+    const { id } = await params
+
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         homeownerId: true,
         contractorId: true,
@@ -117,7 +120,7 @@ export async function GET(
     }
 
     const messages = await prisma.message.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       include: {
         sender: {
           select: {

@@ -12,7 +12,7 @@ const milestoneSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireUser()
@@ -21,9 +21,11 @@ export async function POST(
     }
     const { user } = authResult
 
+    const { id } = await params
+
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         homeownerId: true,
         contractorId: true,
@@ -49,7 +51,7 @@ export async function POST(
 
     const milestone = await prisma.milestone.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         title: data.title,
         description: data.description,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
@@ -78,7 +80,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireUser()
@@ -87,9 +89,11 @@ export async function GET(
     }
     const { user } = authResult
 
+    const { id } = await params
+
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         homeownerId: true,
         contractorId: true,
@@ -111,7 +115,7 @@ export async function GET(
     }
 
     const milestones = await prisma.milestone.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       orderBy: { dueDate: 'asc' },
     })
 
@@ -127,7 +131,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireUser()
@@ -135,6 +139,7 @@ export async function PATCH(
       return authResult
     }
     const { user } = authResult
+    const { id } = await params
 
     const body = await request.json()
     const { milestoneId, isCompleted, completedAt } = body

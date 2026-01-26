@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
               email: true,
             },
           },
-          estimates: {
+          estimate: {
             select: {
               id: true,
               totalAmount: true,
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
               email: true,
             },
           },
-          estimates: {
+          estimate: {
             select: {
               id: true,
               totalAmount: true,

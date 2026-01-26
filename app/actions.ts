@@ -180,6 +180,7 @@ export async function getEstimate(id: string) {
       where: { id },
       include: {
         lineItems: true,
+        client: true,
       },
     })
     return estimate
