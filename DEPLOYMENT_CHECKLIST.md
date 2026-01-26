@@ -1,237 +1,178 @@
-# 🚀 RenoRate Deployment Checklist
+# Deployment Checklist - Updated Version
 
 ## Pre-Deployment Steps
 
-### ✅ 1. Code Preparation
-- [x] All features implemented
-- [x] Build command configured (`prisma generate && next build`)
-- [x] Vercel configuration file exists (`vercel.json`)
+### 1. Database Migration ⚠️ REQUIRED
 
-### ✅ 2. Database Setup (PostgreSQL)
-You need a PostgreSQL database for production. Choose one:
+The new version includes a `Client` model. You **must** run a migration:
 
-**Option A: Vercel Postgres** (Recommended - easiest)
-- Go to Vercel Dashboard → Your Project → Storage → Create Database
-- Choose "Postgres"
-- Copy the connection string
-
-**Option B: Supabase** (Free tier available)
-- Sign up at https://supabase.com
-- Create a new project
-- Go to Settings → Database → Connection String
-- Copy the connection string
-
-**Option C: Railway** (Easy setup)
-- Sign up at https://railway.app
-- Create a new PostgreSQL database
-- Copy the connection string
-
-**Option D: Neon** (Serverless PostgreSQL)
-- Sign up at https://neon.tech
-- Create a new project
-- Copy the connection string
-
-### ✅ 3. Update Prisma Schema for Production
-The schema has been updated to support PostgreSQL. Make sure `prisma/schema.prisma` has:
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-### ✅ 4. Git Repository Setup
+**For Vercel/Production:**
 ```bash
-# Initialize git (if not done)
-git init
-
-# Add all files
-git add .
-
-# Commit
-git commit -m "Prepare for production deployment"
-
-# Create GitHub repository, then:
-git remote add origin <your-github-repo-url>
-git push -u origin main
+# In your production environment or via Vercel CLI
+npx prisma migrate deploy
 ```
 
----
+**For Local Testing First:**
+```bash
+npx prisma migrate dev --name add_client_model
+```
+
+This will:
+- Create the `Client` table
+- Update `Estimate` table to support both legacy and new client relations
+- Maintain backward compatibility with existing estimates
+
+### 2. Install Dependencies
+
+The new version includes vitest for testing. Install dependencies:
+
+```bash
+npm install
+```
+
+### 3. Environment Variables
+
+Ensure these are set in your production environment (Vercel dashboard):
+
+**Required:**
+- `NEXTAUTH_SECRET` - Generate with: `openssl rand -base64 32`
+- `NEXTAUTH_URL` - Set to: `https://renorate.net`
+- `DATABASE_URL` - PostgreSQL connection string
+- `NODE_ENV` - Set to `production`
+
+**Optional (for permit lookup):**
+- `PERMIT_API_KEY` - Permit lookup API key (if available)
+- `PERMIT_API_URL` - Permit lookup API URL (if available)
+
+See `ENVIRONMENT.md` for full details.
 
 ## Deployment Steps
 
-### Step 1: Deploy to Vercel
+### If Using Vercel:
 
-1. **Go to [vercel.com](https://vercel.com)** and sign in (or create account)
+1. **Push to GitHub** ✅ (Already done)
+   - Code is pushed to `main` branch
 
-2. **Click "Add New Project"**
+2. **Vercel Auto-Deploy:**
+   - Vercel should automatically detect the push and start building
+   - Monitor the deployment in Vercel dashboard
 
-3. **Import your GitHub repository**
-   - Connect your GitHub account if needed
-   - Select your `renorate` repository
-   - Click "Import"
+3. **Run Database Migration:**
+   - After deployment, run: `npx prisma migrate deploy`
+   - Or use Vercel's database migration feature if configured
 
-4. **Configure Project Settings:**
-   - **Framework Preset**: Next.js (auto-detected)
-   - **Root Directory**: `./` (default)
-   - **Build Command**: `prisma generate && next build` (already in vercel.json)
-   - **Output Directory**: `.next` (default)
-   - **Install Command**: `npm install` (default)
+4. **Verify Environment Variables:**
+   - Go to Vercel Dashboard → Project → Settings → Environment Variables
+   - Ensure all required variables are set
 
-5. **Add Environment Variables:**
-   - Click "Environment Variables"
-   - Add: `DATABASE_URL` = Your PostgreSQL connection string
-   - Example: `postgresql://user:password@host:5432/database?schema=public`
+### Manual Deployment:
 
-6. **Click "Deploy"**
+If not using auto-deploy:
 
-### Step 2: Run Database Migrations
-
-After first deployment, you need to run migrations:
-
-**Option A: Using Vercel CLI** (Recommended)
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Build locally to check for errors
+npm run build
 
-# Login
-vercel login
+# Deploy (method depends on your hosting)
+# For Vercel CLI:
+vercel --prod
 
-# Link to your project
-vercel link
-
-# Run migrations (this will use your production DATABASE_URL)
+# Then run migration:
 npx prisma migrate deploy
 ```
 
-**Option B: Using Prisma Studio (Local)**
-```bash
-# Set your production DATABASE_URL locally
-export DATABASE_URL="your-production-connection-string"
+## Post-Deployment Verification
 
-# Run migrations
-npx prisma migrate deploy
-```
+### 1. Test Authentication
+- [ ] Visit `https://renorate.net/portal`
+- [ ] Register a new account
+- [ ] Login with existing account
+- [ ] Verify session persists after page refresh
+- [ ] Test logout/login flow
 
-**Option C: Using Vercel Postgres Dashboard**
-- If using Vercel Postgres, you can run SQL directly in the dashboard
+### 2. Test Estimate Functionality
+- [ ] Create new estimate (`/estimate/new`)
+- [ ] Add multiple line items
+- [ ] Save estimate
+- [ ] Reopen saved estimate (`/estimate/[id]`)
+- [ ] Verify all inputs are preserved
+- [ ] Edit and save changes
+- [ ] Export PDF - verify download works
+- [ ] Verify PDF matches saved data
 
-### Step 3: Verify Deployment
+### 3. Test API Endpoints
+- [ ] PDF export: `/api/estimate/[id]/pdf` (should download PDF)
+- [ ] Permit lookup: `/api/permits/search` (should show "not configured" message)
+- [ ] Verify authentication required for protected routes
 
-1. Check your deployment URL (e.g., `renorate.vercel.app`)
-2. Test the site:
-   - Landing page loads
-   - Can register/login
-   - Can create estimates
-   - Database operations work
+### 4. Test Domain Redirects
+- [ ] Visit `https://www.renorate.net` - should redirect to `https://renorate.net`
+- [ ] Verify HTTPS is enforced
 
-### Step 4: Set Up Custom Domain (renorate.net)
-
-1. **In Vercel Dashboard:**
-   - Go to your project → Settings → Domains
-   - Click "Add Domain"
-   - Enter `renorate.net` and `www.renorate.net`
-
-2. **Configure DNS:**
-   - Vercel will provide DNS records
-   - Add them to your domain registrar:
-     - **A Record**: Point to Vercel's IP (if provided)
-     - **CNAME Record**: Point `www` to `cname.vercel-dns.com`
-   - Or use Vercel's nameservers (easiest)
-
-3. **Wait for SSL:**
-   - Vercel automatically provisions SSL certificates
-   - Usually takes 1-24 hours for DNS propagation
-
----
-
-## Post-Deployment
-
-### ✅ Monitor Your Site
-
-1. **Check Vercel Analytics:**
-   - View deployment logs
-   - Monitor errors
-   - Check performance
-
-2. **Test Key Features:**
-   - [ ] User registration
-   - [ ] User login
-   - [ ] Estimate creation
-   - [ ] PDF export
-   - [ ] Project management
-   - [ ] Messaging system
-
-3. **Set Up Monitoring:**
-   - Consider adding error tracking (Sentry, LogRocket)
-   - Set up uptime monitoring (UptimeRobot, Pingdom)
-
-### ✅ Environment Variables Checklist
-
-Make sure these are set in Vercel:
-- [x] `DATABASE_URL` - PostgreSQL connection string
-- [ ] `NODE_ENV` - Set to `production` (auto-set by Vercel)
-- [ ] Any other API keys or secrets your app needs
-
----
+### 5. Check Database
+- [ ] Verify `Client` table exists
+- [ ] Verify existing estimates still work (backward compatibility)
+- [ ] Check that new estimates can be created
 
 ## Troubleshooting
 
-### Build Fails
-- Check build logs in Vercel dashboard
-- Ensure `prisma generate` runs before `next build`
-- Verify all dependencies are in `package.json`
+### Build Fails:
+- Check that all dependencies are installed
+- Verify `prisma generate` runs successfully
+- Check for TypeScript errors: `npm run build`
 
-### Database Connection Errors
-- Verify `DATABASE_URL` is correct in Vercel
-- Check database allows connections from Vercel IPs
-- Ensure database is running and accessible
+### Database Errors:
+- Ensure `DATABASE_URL` is set correctly
+- Run migration: `npx prisma migrate deploy`
+- Check database connection
 
-### Migration Errors
-- Run `npx prisma migrate deploy` manually
-- Check migration files are committed to git
-- Verify database schema matches migrations
+### Authentication Issues:
+- Verify `NEXTAUTH_SECRET` is set
+- Verify `NEXTAUTH_URL` matches your domain
+- Check cookie settings in production
 
-### Domain Not Working
-- Wait 24-48 hours for DNS propagation
-- Check DNS records are correct
-- Verify SSL certificate is issued (check in Vercel dashboard)
+### PDF Export Fails:
+- Check server logs for errors
+- Verify estimate exists in database
+- Check authentication is working
 
----
+## Rollback Plan
 
-## Quick Commands Reference
+If issues occur, you can rollback:
 
 ```bash
-# Local development
-npm run dev
+# Revert to previous commit
+git revert HEAD
+git push origin main
 
-# Build locally (test before deploying)
-npm run build
-
-# Run migrations
-npx prisma migrate deploy
-
-# Generate Prisma client
-npx prisma generate
-
-# Open Prisma Studio (to view database)
-npx prisma studio
-
-# Vercel CLI commands
-vercel login
-vercel link
-vercel deploy
-vercel env pull  # Pull environment variables locally
+# Or reset to specific commit
+git reset --hard <previous-commit-hash>
+git push origin main --force
 ```
 
----
+**Note:** Rolling back will require reverting the database migration if the Client model was created.
+
+## Success Criteria
+
+✅ All tests pass: `npm test`
+✅ Build succeeds: `npm run build`
+✅ Authentication works end-to-end
+✅ Estimates can be created, saved, reopened, and exported
+✅ PDF export generates correctly from database
+✅ No console errors in production
+✅ All environment variables are set
 
 ## Support
 
 If you encounter issues:
 1. Check Vercel deployment logs
-2. Check database connection
-3. Verify all environment variables are set
-4. Review this checklist
+2. Check browser console for errors
+3. Verify environment variables
+4. Check database connection
+5. Review `IMPLEMENTATION_SUMMARY.md` for details
 
-Good luck with your launch! 🚀
+---
+
+**Last Updated:** After commit `701621a`
+**Deployment Date:** _______________
+**Deployed By:** _______________
