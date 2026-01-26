@@ -4,6 +4,10 @@ import { FiFileText, FiList, FiZap, FiCheckCircle, FiArrowRight } from 'react-ic
 import Mascot from '@/components/Mascot'
 import Logo from '@/components/Logo'
 
+// Force dynamic rendering to prevent caching issues
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function Home() {
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -39,7 +43,7 @@ export default function Home() {
                 <Logo size="large" showTagline={true} variant="dark" />
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-                The KBB of Renovation Pricing
+                Transparent Renovation Pricing
               </h1>
               <p className="text-xl text-gray-600 mb-6 font-medium">
                 The industry standard for transparent renovation pricing, standardized estimates, and clear project scope—so decisions are made before construction begins.
