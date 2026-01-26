@@ -79,8 +79,8 @@ export default function ContractorsPage() {
         <div className="flex items-center gap-6 mb-6">
           <Mascot size="medium" animated={false} />
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Contractors</h1>
-            <p className="text-gray-600">Browse verified contractors for your project</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Estimate Providers</h1>
+            <p className="text-gray-600">Contractors who can provide standardized estimates</p>
           </div>
         </div>
       </div>
@@ -88,8 +88,8 @@ export default function ContractorsPage() {
       {contractors.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-12 text-center">
           <FiStar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No contractors available</h2>
-          <p className="text-gray-600">Check back later for verified contractors.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No estimate providers available</h2>
+          <p className="text-gray-600">Check back later for contractors who can provide estimates.</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

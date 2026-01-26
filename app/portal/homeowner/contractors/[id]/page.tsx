@@ -76,7 +76,7 @@ export default function ContractorProfilePage() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
         >
           <FiArrowLeft className="w-4 h-4" />
-          Back to Contractors
+          Back to Estimate Providers
         </button>
         <div className="flex items-center gap-6 mb-6">
           <Mascot size="medium" animated={false} />
@@ -87,7 +87,7 @@ export default function ContractorProfilePage() {
             {contractor.isVerified && (
               <div className="flex items-center gap-2 text-teal-600">
                 <FiCheckCircle className="w-5 h-5" />
-                <span className="font-semibold">Verified Contractor</span>
+                <span className="font-semibold">Estimate Provider</span>
               </div>
             )}
           </div>
@@ -173,7 +173,7 @@ export default function ContractorProfilePage() {
             href={`/portal/homeowner/projects/new?contractorId=${contractor.user.id}`}
             className="block w-full bg-teal-600 hover:bg-teal-700 text-white text-center px-6 py-3 rounded-lg font-semibold transition-colors"
           >
-            Create Project with This Contractor
+            Request Estimate
           </Link>
         </div>
       </div>

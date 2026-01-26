@@ -138,8 +138,8 @@ export default function HomeownerDashboard() {
               <FiMessageSquare className="w-6 h-6 text-teal-600" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 mb-1">Find Contractors</h3>
-              <p className="text-sm text-gray-600">Browse verified contractors</p>
+              <h3 className="font-bold text-gray-900 mb-1">Pricing Benchmarks</h3>
+              <p className="text-sm text-gray-600">Compare estimate pricing</p>
             </div>
           </div>
         </Link>

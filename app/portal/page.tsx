@@ -16,8 +16,7 @@ export default function PortalPage() {
             RenoRate Professional Platform
           </h1>
           <p className="text-xl text-gray-600 font-medium max-w-3xl mx-auto">
-            Industry-leading platform connecting verified contractors with homeowners. 
-            Comprehensive project management, transparent pricing, and secure communications.
+            The industry standard for transparent renovation pricing, standardized estimates, and clear project scope—so decisions are made before construction begins.
           </p>
         </div>
 
@@ -37,24 +36,24 @@ export default function PortalPage() {
                   Homeowner Portal
                 </h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Access verified contractors, receive detailed estimates, and manage your renovation projects with complete transparency.
+                  Get standardized pricing estimates, understand project scope, and make informed decisions with transparent cost breakdowns.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Browse verified contractor network</span>
+                    <span>Compare estimates against pricing benchmarks</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Receive multiple professional estimates</span>
+                    <span>Receive detailed, standardized estimates</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Track project progress and budgets</span>
+                    <span>Track project scope and cost breakdowns</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Secure project communication</span>
+                    <span>Document project details and estimates</span>
                   </li>
                 </ul>
               </div>
@@ -81,24 +80,24 @@ export default function PortalPage() {
                   Contractor Portal
                 </h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Manage project inquiries, create professional estimates, and track multiple projects with comprehensive tools.
+                  Create standardized professional estimates, track project documentation, and maintain clear cost breakdowns for your clients.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Receive qualified project inquiries</span>
+                    <span>Create detailed, standardized estimates</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Create detailed professional estimates</span>
+                    <span>Generate professional PDF estimates</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Track project timelines and milestones</span>
+                    <span>Track project scope and documentation</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-teal-600 font-semibold">•</span>
-                    <span>Manage payments and invoices</span>
+                    <span>Maintain estimate history and records</span>
                   </li>
                 </ul>
               </div>
@@ -121,19 +120,19 @@ export default function PortalPage() {
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Quality Assurance Program</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Pricing Transparency Program</h3>
               <p className="text-gray-600 mb-4 leading-relaxed">
-                Every project on RenoRate is monitored and verified by our RenoRhino quality assurance program. 
-                We ensure all work meets industry standards, contractual obligations, and regulatory compliance.
+                RenoRate provides independent pricing benchmarks and standardized estimate formats. 
+                RenoRhino ensures you have clear, comparable pricing data before making renovation decisions.
               </p>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="font-semibold text-gray-700 mb-1">Verified Professionals</p>
-                  <p className="text-gray-500">Background checks and credential verification</p>
+                  <p className="font-semibold text-gray-700 mb-1">Pricing Benchmarks</p>
+                  <p className="text-gray-500">Industry-standard pricing data and comparisons</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-700 mb-1">Project Monitoring</p>
-                  <p className="text-gray-500">Ongoing quality oversight throughout project lifecycle</p>
+                  <p className="font-semibold text-gray-700 mb-1">Standardized Estimates</p>
+                  <p className="text-gray-500">Consistent format for easy comparison and evaluation</p>
                 </div>
               </div>
             </div>
@@ -152,25 +151,25 @@ export default function PortalPage() {
               </div>
               <h4 className="text-lg font-bold text-gray-900 mb-2">Account Setup</h4>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Register as a homeowner or contractor. Complete verification process to ensure platform security and quality.
+                Register as a homeowner or contractor. Access tools for creating and comparing standardized renovation estimates.
               </p>
             </div>
             <div className="text-center">
               <div className="w-14 h-14 bg-teal-600 text-white rounded-lg flex items-center justify-center text-xl font-bold mx-auto mb-4">
                 2
               </div>
-              <h4 className="text-lg font-bold text-gray-900 mb-2">Project Connection</h4>
+              <h4 className="text-lg font-bold text-gray-900 mb-2">Estimate Creation</h4>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Homeowners post projects and receive contractor proposals. Contractors review inquiries and submit detailed estimates.
+                Contractors create standardized estimates with detailed cost breakdowns. Homeowners receive clear, comparable pricing information.
               </p>
             </div>
             <div className="text-center">
               <div className="w-14 h-14 bg-teal-600 text-white rounded-lg flex items-center justify-center text-xl font-bold mx-auto mb-4">
                 3
               </div>
-              <h4 className="text-lg font-bold text-gray-900 mb-2">Project Management</h4>
+              <h4 className="text-lg font-bold text-gray-900 mb-2">Estimate Documentation</h4>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Collaborate on timelines, track budgets and payments, communicate securely, and monitor project milestones.
+                Track estimate details, maintain project scope documentation, and keep clear records of pricing and project information.
               </p>
             </div>
           </div>

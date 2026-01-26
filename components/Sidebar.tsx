@@ -61,7 +61,7 @@ export default function Sidebar() {
             <Mascot size="small" animated={false} />
             <div>
               <p className="text-xs font-semibold text-gray-700">RenoRhino</p>
-              <p className="text-xs text-gray-500">Verified Projects</p>
+              <p className="text-xs text-gray-500">Pricing Transparency</p>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@
 
 **Website**: [renorate.net](https://renorate.net)
 
-A professional contractor renovation estimating platform built with Next.js 14, TypeScript, TailwindCSS, Prisma, and SQLite. Connect verified contractors with homeowners for transparent project management, secure communications, and comprehensive financial tracking.
+The industry standard for transparent renovation pricing, standardized estimates, and clear project scope—so decisions are made before construction begins. Built with Next.js 14, TypeScript, TailwindCSS, Prisma, and SQLite.
 
 ## Features
 

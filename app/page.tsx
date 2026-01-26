@@ -39,11 +39,10 @@ export default function Home() {
                 <Logo size="large" showTagline={true} variant="dark" />
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-                Professional Renovation Estimating Platform
+                The KBB of Renovation Pricing
               </h1>
               <p className="text-xl text-gray-600 mb-6 font-medium">
-                The industry standard for connecting verified contractors with homeowners. 
-                Transparent project management, secure communications, and comprehensive financial tracking.
+                The industry standard for transparent renovation pricing, standardized estimates, and clear project scope—so decisions are made before construction begins.
               </p>
               <p className="text-lg text-gray-500 mb-8">
                 Built for serious professionals who demand accuracy, accountability, and results.
@@ -62,7 +61,7 @@ export default function Home() {
                 <Mascot size="large" animated={false} />
                 <div className="mt-6 text-center">
                   <p className="text-sm font-semibold text-gray-700 mb-1">RenoRhino</p>
-                  <p className="text-xs text-gray-500">Verified Quality Assurance</p>
+                  <p className="text-xs text-gray-500">Pricing Transparency</p>
                 </div>
               </div>
             </div>
@@ -115,7 +114,7 @@ export default function Home() {
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Homeowner Portal</h2>
               <p className="text-gray-600 leading-relaxed">
-                Access verified contractors, receive detailed estimates, and manage your renovation projects with complete transparency and security.
+                Get standardized pricing estimates, understand project scope, and make informed decisions with transparent cost breakdowns before you commit.
               </p>
             </div>
           </div>
@@ -162,8 +161,8 @@ export default function Home() {
               <FiCheckCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-lg text-gray-900 mb-2">Verified Contractor Network</h4>
-              <p className="text-gray-600 text-sm leading-relaxed">All contractors undergo verification and background checks. Ratings and reviews ensure quality standards.</p>
+              <h4 className="font-bold text-lg text-gray-900 mb-2">Standardized Pricing Benchmarks</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">Compare estimates against industry-standard pricing data. Know what's fair before you sign any contract.</p>
             </div>
           </div>
           
@@ -182,8 +181,8 @@ export default function Home() {
               <FiCheckCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-lg text-gray-900 mb-2">Secure Project Communications</h4>
-              <p className="text-gray-600 text-sm leading-relaxed">Encrypted messaging system for timelines, budget updates, and milestone tracking between parties.</p>
+              <h4 className="font-bold text-lg text-gray-900 mb-2">Clear Project Documentation</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">Detailed project scope and estimate documentation. Track changes and maintain clear records throughout your renovation.</p>
             </div>
           </div>
           
@@ -208,19 +207,19 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Quality Assurance by RenoRhino</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Pricing Clarity by RenoRhino</h3>
             <p className="text-gray-600 mb-4 leading-relaxed">
-              Every project on RenoRate is verified and monitored by our quality assurance program. 
-              RenoRhino ensures that all work meets industry standards and contractual obligations.
+              RenoRate provides independent pricing benchmarks and standardized estimates. 
+              RenoRhino helps you understand fair market pricing before you commit to any renovation contract.
             </p>
             <div className="flex items-center gap-6 text-sm text-gray-500">
               <div>
-                <p className="font-semibold text-gray-700">Verified Projects</p>
-                <p>Industry Standard Compliance</p>
+                <p className="font-semibold text-gray-700">Pricing Benchmarks</p>
+                <p>Industry-Standard Data</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-700">Transparent Tracking</p>
-                <p>Complete Project Visibility</p>
+                <p className="font-semibold text-gray-700">Transparent Estimates</p>
+                <p>Clear Cost Breakdowns</p>
               </div>
             </div>
           </div>
