@@ -1,26 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/auth-helpers'
 import { z } from 'zod'
 
-// Prisma client types will be available after running: npx prisma generate
-
 const messageSchema = z.object({
-  senderId: z.string(),
   content: z.string().min(1, 'Message content is required'),
 })
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
     const body = await request.json()
     const data = messageSchema.parse(body)
 
     // Verify project exists and user has access
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: params.id },
       select: {
         id: true,
         homeownerId: true,
@@ -36,17 +39,17 @@ export async function POST(
     }
 
     // Verify sender is either homeowner or contractor
-    if (data.senderId !== project.homeownerId && data.senderId !== project.contractorId) {
+    if (project.homeownerId !== user.id && project.contractorId !== user.id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Forbidden' },
         { status: 403 }
       )
     }
 
     const message = await prisma.message.create({
       data: {
-        projectId: id,
-        senderId: data.senderId,
+        projectId: params.id,
+        senderId: user.id,
         content: data.content,
       },
       include: {
@@ -81,12 +84,40 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
+    // Verify project exists and user has access
+    const project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        homeownerId: true,
+        contractorId: true,
+      },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
+    if (project.homeownerId !== user.id && project.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     const messages = await prisma.message.findMany({
-      where: { projectId: id },
+      where: { projectId: params.id },
       include: {
         sender: {
           select: {

@@ -1,17 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPlus, FiFileText, FiMessageSquare, FiDollarSign, FiTrendingUp } from 'react-icons/fi'
 import Mascot from '@/components/Mascot'
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-}
+import { useAuth } from '@/lib/use-auth'
 
 interface Project {
   id: string
@@ -24,9 +17,7 @@ interface Project {
 }
 
 export default function ContractorDashboard() {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, isLoading } = useAuth('CONTRACTOR')
   const [stats, setStats] = useState({
     activeProjects: 0,
     totalRevenue: 0,
@@ -36,31 +27,16 @@ export default function ContractorDashboard() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
 
   useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (!userData) {
-      router.push('/portal/contractor/login')
-      return
+    if (user) {
+      fetchDashboardData()
     }
+  }, [user])
 
-    try {
-      const parsedUser = JSON.parse(userData)
-      if (parsedUser.role !== 'CONTRACTOR') {
-        router.push('/portal/contractor/login')
-        return
-      }
-      setUser(parsedUser)
-      fetchDashboardData(parsedUser.id)
-    } catch (error) {
-      router.push('/portal/contractor/login')
-    } finally {
-      setLoading(false)
-    }
-  }, [router])
-
-  const fetchDashboardData = async (userId: string) => {
+  const fetchDashboardData = async () => {
+    if (!user) return
     try {
       // Fetch contractor's projects
-      const projectsResponse = await fetch(`/api/projects?userId=${userId}&role=CONTRACTOR`)
+      const projectsResponse = await fetch(`/api/projects?role=CONTRACTOR`)
       const projectsData = await projectsResponse.json()
       
       if (projectsData.success) {
@@ -84,7 +60,7 @@ export default function ContractorDashboard() {
       }
 
       // Fetch estimates count
-      const estimatesResponse = await fetch(`/api/estimates?contractorId=${userId}`)
+      const estimatesResponse = await fetch(`/api/estimates`)
       const estimatesData = await estimatesResponse.json()
       if (estimatesData.success) {
         setStats(prev => ({
@@ -97,7 +73,7 @@ export default function ContractorDashboard() {
     }
   }
 
-  if (loading) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

@@ -32,6 +32,7 @@ model User {
   contractorProjects Project[]        @relation("ContractorProjects")
   messages          Message[]
   estimates         Estimate[]
+  clients           Client[]          @relation("ClientContractor")
   
   // Contractor specific
   contractorProfile ContractorProfile?
@@ -102,11 +103,15 @@ model Project {
 
 model Estimate {
   id          String      @id @default(cuid())
-  clientName  String
-  clientPhone String
-  clientEmail String
-  address     String
-  zipCode     String
+  // Legacy client fields (for backward compatibility)
+  clientName  String?
+  clientPhone String?
+  clientEmail String?
+  address     String?
+  zipCode     String?
+  // New client relation
+  clientId    String?
+  client      Client?    @relation(fields: [clientId], references: [id])
   projectType String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -159,6 +164,22 @@ model Milestone {
   isCompleted Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Client {
+  id          String     @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  zipCode     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Relations
+  contractorId String?
+  contractor   User?     @relation("ClientContractor", fields: [contractorId], references: [id])
+  estimates    Estimate[]
 }
 
 model Settings {

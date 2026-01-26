@@ -112,8 +112,27 @@ export default function EstimateDetail({ estimate }: { estimate: Estimate }) {
     setIsSaving(false)
   }
 
-  const handleExportPDF = () => {
-    generatePDF(estimate)
+  const handleExportPDF = async () => {
+    try {
+      // Use server-side PDF generation (source of truth from database)
+      const response = await fetch(`/api/estimate/${estimate.id}/pdf`)
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `RenoRate-Estimate-${estimate.id.substring(0, 8)}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Error exporting PDF:', error)
+      // Fallback to client-side if server fails
+      generatePDF(estimate)
+    }
   }
 
   const totalLabor = estimate.lineItems.reduce((sum, item) => sum + item.laborCost, 0)

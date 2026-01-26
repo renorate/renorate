@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireRole } from '@/lib/auth-helpers'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const contractorId = searchParams.get('contractorId')
-
-    if (!contractorId) {
-      return NextResponse.json(
-        { error: 'Contractor ID is required' },
-        { status: 400 }
-      )
+    const authResult = await requireRole(['CONTRACTOR'])
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
+    const { user } = authResult
 
     const estimates = await prisma.estimate.findMany({
-      where: { contractorId },
+      where: { contractorId: user.id },
       include: {
         lineItems: true,
       },

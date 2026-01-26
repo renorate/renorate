@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authenticateUser } from '@/lib/auth'
+import { signIn } from 'next-auth/react'
 import { z } from 'zod'
 
 const loginSchema = z.object({
@@ -7,36 +7,14 @@ const loginSchema = z.object({
   password: z.string(),
 })
 
+// This route is kept for backward compatibility but NextAuth handles login
+// Client should use signIn from next-auth/react instead
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const data = loginSchema.parse(body)
-
-    const user = await authenticateUser(data.email, data.password)
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      )
-    }
-
-    // In production, you'd use NextAuth or similar for session management
-    // For now, we'll return user data (you'll need to implement proper session handling)
-    return NextResponse.json(
-      { user, success: true },
-      { status: 200 }
-    )
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: error.errors[0].message },
-        { status: 400 }
-      )
-    }
-    return NextResponse.json(
-      { error: 'Failed to login' },
-      { status: 500 }
-    )
-  }
+  return NextResponse.json(
+    { 
+      error: 'Please use NextAuth signIn. This endpoint is deprecated.',
+      redirect: '/api/auth/signin'
+    },
+    { status: 400 }
+  )
 }

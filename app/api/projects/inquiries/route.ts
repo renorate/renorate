@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireRole } from '@/lib/auth-helpers'
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireRole(['CONTRACTOR'])
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+
     // Get all projects without a contractor assigned (available for contractors)
     const projects = await prisma.project.findMany({
       where: {

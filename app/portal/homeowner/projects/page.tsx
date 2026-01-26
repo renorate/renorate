@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPlus, FiFileText, FiMessageSquare, FiDollarSign, FiCalendar } from 'react-icons/fi'
+import { useAuth } from '@/lib/use-auth'
 
 interface Project {
   id: string
@@ -21,38 +21,28 @@ interface Project {
 }
 
 export default function HomeownerProjectsPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, isLoading } = useAuth('HOMEOWNER')
   const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (!userData) {
-      router.push('/portal/homeowner/login')
-      return
+    if (user) {
+      fetchProjects()
     }
+  }, [user])
 
-    const parsedUser = JSON.parse(userData)
-    setUser(parsedUser)
-    fetchProjects(parsedUser.id)
-  }, [router])
-
-  const fetchProjects = async (userId: string) => {
+  const fetchProjects = async () => {
     try {
-      const response = await fetch(`/api/projects?userId=${userId}&role=HOMEOWNER`)
+      const response = await fetch(`/api/projects?role=HOMEOWNER`)
       const data = await response.json()
       if (data.success) {
         setProjects(data.projects)
       }
     } catch (error) {
       console.error('Error fetching projects:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
-  if (loading) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

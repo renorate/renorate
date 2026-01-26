@@ -3,12 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
     const contractor = await prisma.contractorProfile.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: {
         user: {
           select: {

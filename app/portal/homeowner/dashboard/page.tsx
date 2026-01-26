@@ -1,17 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPlus, FiFileText, FiMessageSquare, FiDollarSign, FiCalendar } from 'react-icons/fi'
 import Mascot from '@/components/Mascot'
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-}
+import { useAuth } from '@/lib/use-auth'
 
 interface Project {
   id: string
@@ -25,9 +18,7 @@ interface Project {
 }
 
 export default function HomeownerDashboard() {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, isLoading } = useAuth('HOMEOWNER')
   const [stats, setStats] = useState({
     activeProjects: 0,
     totalBudget: 0,
@@ -37,30 +28,15 @@ export default function HomeownerDashboard() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
 
   useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (!userData) {
-      router.push('/portal/homeowner/login')
-      return
+    if (user) {
+      fetchDashboardData()
     }
+  }, [user])
 
+  const fetchDashboardData = async () => {
+    if (!user) return
     try {
-      const parsedUser = JSON.parse(userData)
-      if (parsedUser.role !== 'HOMEOWNER') {
-        router.push('/portal/homeowner/login')
-        return
-      }
-      setUser(parsedUser)
-      fetchDashboardData(parsedUser.id)
-    } catch (error) {
-      router.push('/portal/homeowner/login')
-    } finally {
-      setLoading(false)
-    }
-  }, [router])
-
-  const fetchDashboardData = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/projects?userId=${userId}&role=HOMEOWNER`)
+      const response = await fetch(`/api/projects?role=HOMEOWNER`)
       const data = await response.json()
       
       if (data.success) {
@@ -91,7 +67,7 @@ export default function HomeownerDashboard() {
     }
   }
 
-  if (loading) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

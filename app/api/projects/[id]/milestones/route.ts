@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/auth-helpers'
 import { z } from 'zod'
 
 const milestoneSchema = z.object({
@@ -11,16 +12,44 @@ const milestoneSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
+    // Verify project exists and user has access
+    const project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        homeownerId: true,
+        contractorId: true,
+      },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
+    if (project.homeownerId !== user.id && project.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const data = milestoneSchema.parse(body)
 
     const milestone = await prisma.milestone.create({
       data: {
-        projectId: id,
+        projectId: params.id,
         title: data.title,
         description: data.description,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
@@ -49,12 +78,40 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
+    // Verify project exists and user has access
+    const project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        homeownerId: true,
+        contractorId: true,
+      },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
+    if (project.homeownerId !== user.id && project.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     const milestones = await prisma.milestone.findMany({
-      where: { projectId: id },
+      where: { projectId: params.id },
       orderBy: { dueDate: 'asc' },
     })
 
@@ -70,9 +127,15 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
     const body = await request.json()
     const { milestoneId, isCompleted, completedAt } = body
 
@@ -83,7 +146,34 @@ export async function PATCH(
       )
     }
 
-    const milestone = await prisma.milestone.update({
+    // Verify milestone exists and belongs to a project user has access to
+    const milestone = await prisma.milestone.findUnique({
+      where: { id: milestoneId },
+      include: {
+        project: {
+          select: {
+            homeownerId: true,
+            contractorId: true,
+          },
+        },
+      },
+    })
+
+    if (!milestone) {
+      return NextResponse.json(
+        { error: 'Milestone not found' },
+        { status: 404 }
+      )
+    }
+
+    if (milestone.project.homeownerId !== user.id && milestone.project.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
+    const updatedMilestone = await prisma.milestone.update({
       where: { id: milestoneId },
       data: {
         isCompleted: isCompleted,
@@ -91,7 +181,7 @@ export async function PATCH(
       },
     })
 
-    return NextResponse.json({ milestone, success: true })
+    return NextResponse.json({ milestone: updatedMilestone, success: true })
   } catch (error) {
     console.error('Error updating milestone:', error)
     return NextResponse.json(

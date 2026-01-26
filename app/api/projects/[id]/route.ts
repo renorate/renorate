@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/auth-helpers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: {
         homeowner: {
           select: {
@@ -26,7 +32,7 @@ export async function GET(
             phone: true,
           },
         },
-        estimate: {
+        estimates: {
           include: {
             lineItems: true,
           },
@@ -56,6 +62,14 @@ export async function GET(
       )
     }
 
+    // Verify user has access to this project
+    if (project.homeownerId !== user.id && project.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json({ project, success: true })
   } catch (error) {
     console.error('Error fetching project:', error)
@@ -68,12 +82,41 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
     const body = await request.json()
     const { contractorId, status, budget, deposit, paidAmount } = body
+
+    // Verify project exists and user has access
+    const existingProject = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        homeownerId: true,
+        contractorId: true,
+      },
+    })
+
+    if (!existingProject) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
+    // Only homeowner or assigned contractor can update
+    if (existingProject.homeownerId !== user.id && existingProject.contractorId !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
 
     const updateData: any = {}
     if (contractorId !== undefined) updateData.contractorId = contractorId
@@ -86,7 +129,7 @@ export async function PATCH(
     }
 
     const project = await prisma.project.update({
-      where: { id },
+      where: { id: params.id },
       data: updateData,
       include: {
         homeowner: {

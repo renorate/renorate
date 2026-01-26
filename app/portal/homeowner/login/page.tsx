@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import { FiHome, FiMail, FiLock, FiArrowRight } from 'react-icons/fi'
@@ -30,24 +31,18 @@ export default function HomeownerLoginPage() {
 
     try {
       if (isLogin) {
-        // Login
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
+        // Login with NextAuth
+        const result = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
         })
 
-        const data = await response.json()
-
-        if (data.success) {
-          // Store user in localStorage (in production, use proper session management)
-          localStorage.setItem('user', JSON.stringify(data.user))
+        if (result?.error) {
+          setError('Invalid email or password')
+        } else if (result?.ok) {
           router.push('/portal/homeowner/dashboard')
-        } else {
-          setError(data.error || 'Login failed')
+          router.refresh()
         }
       } else {
         // Register
@@ -66,8 +61,19 @@ export default function HomeownerLoginPage() {
         const data = await response.json()
 
         if (data.success) {
-          localStorage.setItem('user', JSON.stringify(data.user))
-          router.push('/portal/homeowner/dashboard')
+          // Auto-login after registration
+          const result = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          })
+
+          if (result?.ok) {
+            router.push('/portal/homeowner/dashboard')
+            router.refresh()
+          } else {
+            setError('Registration successful, but login failed. Please try logging in.')
+          }
         } else {
           setError(data.error || 'Registration failed')
         }

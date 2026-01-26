@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireRole } from '@/lib/auth-helpers'
 import { z } from 'zod'
 
 const projectSchema = z.object({
@@ -9,11 +10,16 @@ const projectSchema = z.object({
   address: z.string().min(1, 'Address is required'),
   zipCode: z.string().min(5, 'ZIP code is required'),
   budget: z.number().min(0).optional(),
-  homeownerId: z.string().min(1, 'Homeowner ID is required'),
 })
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireRole(['HOMEOWNER'])
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
+
     const body = await request.json()
     const data = projectSchema.parse(body)
 
@@ -25,7 +31,7 @@ export async function POST(request: NextRequest) {
         address: data.address,
         zipCode: data.zipCode,
         budget: data.budget || 0,
-        homeownerId: data.homeownerId,
+        homeownerId: user.id,
         status: 'PENDING',
       },
       include: {

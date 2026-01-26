@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/auth-helpers'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const role = searchParams.get('role')
+    const authResult = await requireUser()
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+    const { user } = authResult
 
-    if (!userId || !role) {
+    const { searchParams } = new URL(request.url)
+    const role = searchParams.get('role') || user.role
+    const userId = user.id
+
+    if (!role) {
       return NextResponse.json(
-        { error: 'User ID and role are required' },
+        { error: 'Role is required' },
         { status: 400 }
       )
     }
@@ -26,7 +33,7 @@ export async function GET(request: NextRequest) {
               email: true,
             },
           },
-          estimate: {
+          estimates: {
             select: {
               id: true,
               totalAmount: true,
@@ -52,7 +59,7 @@ export async function GET(request: NextRequest) {
               email: true,
             },
           },
-          estimate: {
+          estimates: {
             select: {
               id: true,
               totalAmount: true,
