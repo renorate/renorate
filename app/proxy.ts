@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 
 // Next.js 16 proxy.ts - handles routing only (redirects, rewrites, headers)
 // Authentication is handled in layouts and route handlers
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl
 
   // Handle canonical domain redirect (www -> non-www)
   const hostname = request.headers.get('host') || ''
