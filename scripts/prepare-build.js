@@ -11,8 +11,13 @@ const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL
 const schemaPath = path.join(__dirname, '..', 'prisma', 'schema.prisma');
 const productionSchemaPath = path.join(__dirname, '..', 'prisma', 'schema.production.prisma');
 
+// Check current schema provider
+const currentSchema = fs.existsSync(schemaPath) ? fs.readFileSync(schemaPath, 'utf8') : '';
+const isPostgreSQL = currentSchema.includes('provider = "postgresql"');
+const isSQLite = currentSchema.includes('provider = "sqlite"');
+
 if (isProduction) {
-  console.log('🔧 Production build detected - using PostgreSQL schema');
+  console.log('🔧 Production build detected');
   
   // Check if DATABASE_URL is set and looks like PostgreSQL
   const databaseUrl = process.env.DATABASE_URL || '';
@@ -54,17 +59,28 @@ if (isProduction) {
     process.exit(1);
   }
   
-  // Copy production schema to main schema
-  if (fs.existsSync(productionSchemaPath)) {
-    const productionSchema = fs.readFileSync(productionSchemaPath, 'utf8');
-    fs.writeFileSync(schemaPath, productionSchema);
-    console.log('✅ Switched to PostgreSQL schema for production');
+  // Verify schema is PostgreSQL
+  if (isPostgreSQL) {
+    console.log('✅ Schema is already configured for PostgreSQL');
+  } else if (isSQLite) {
+    // Copy production schema to main schema
+    if (fs.existsSync(productionSchemaPath)) {
+      const productionSchema = fs.readFileSync(productionSchemaPath, 'utf8');
+      fs.writeFileSync(schemaPath, productionSchema);
+      console.log('✅ Switched to PostgreSQL schema for production');
+    } else {
+      console.error('❌ ERROR: schema.production.prisma not found');
+      console.error('   Expected at: ' + productionSchemaPath);
+      process.exit(1);
+    }
   } else {
-    console.error('❌ ERROR: schema.production.prisma not found');
-    console.error('   Expected at: ' + productionSchemaPath);
-    process.exit(1);
+    console.warn('⚠️  Could not detect schema provider - assuming PostgreSQL');
   }
 } else {
-  console.log('🔧 Development build - using SQLite schema');
-  // Schema is already set to SQLite, no action needed
+  if (isPostgreSQL) {
+    console.log('🔧 Development build - using PostgreSQL schema');
+    console.log('   Make sure DATABASE_URL is set in your .env file');
+  } else {
+    console.log('🔧 Development build - using SQLite schema');
+  }
 }
