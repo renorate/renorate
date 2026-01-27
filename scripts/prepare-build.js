@@ -36,9 +36,22 @@ if (isProduction) {
   }
   
   if (!databaseUrl.startsWith('postgresql://') && !databaseUrl.startsWith('postgres://')) {
-    console.warn('⚠️  WARNING: DATABASE_URL does not look like a PostgreSQL connection string');
-    console.warn('   Expected format: postgresql://user:password@host:5432/database');
-    console.warn('   Current value starts with: ' + databaseUrl.substring(0, 20) + '...');
+    console.error('');
+    console.error('❌ ERROR: DATABASE_URL does not look like a PostgreSQL connection string');
+    console.error('   Current value starts with: ' + databaseUrl.substring(0, Math.min(50, databaseUrl.length)));
+    console.error('');
+    console.error('📋 TO FIX:');
+    console.error('   1. Go to Vercel Dashboard → Settings → Environment Variables');
+    console.error('   2. Edit DATABASE_URL');
+    console.error('   3. Replace with PostgreSQL connection string');
+    console.error('   4. Format: postgresql://user:password@host:5432/database?schema=public');
+    console.error('');
+    if (databaseUrl.startsWith('file:') || databaseUrl.includes('sqlite')) {
+      console.error('   ⚠️  You have SQLite format - this won\'t work on Vercel!');
+      console.error('   You need a PostgreSQL database (Vercel Postgres, Supabase, etc.)');
+    }
+    console.error('');
+    process.exit(1);
   }
   
   // Copy production schema to main schema
