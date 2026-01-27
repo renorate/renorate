@@ -18,14 +18,27 @@ if (isProduction) {
   const databaseUrl = process.env.DATABASE_URL || '';
   
   if (!databaseUrl) {
+    console.error('');
     console.error('❌ ERROR: DATABASE_URL environment variable is not set');
-    console.error('   Please set DATABASE_URL in Vercel project settings');
+    console.error('');
+    console.error('📋 TO FIX THIS:');
+    console.error('   1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables');
+    console.error('   2. Add DATABASE_URL with your PostgreSQL connection string');
+    console.error('   3. Format: postgresql://user:password@host:5432/database?schema=public');
+    console.error('');
+    console.error('💡 Get a PostgreSQL database:');
+    console.error('   - Vercel Postgres: Vercel Dashboard → Storage → Create Database');
+    console.error('   - Supabase: https://supabase.com (free tier available)');
+    console.error('   - Railway: https://railway.app');
+    console.error('   - Neon: https://neon.tech');
+    console.error('');
     process.exit(1);
   }
   
   if (!databaseUrl.startsWith('postgresql://') && !databaseUrl.startsWith('postgres://')) {
     console.warn('⚠️  WARNING: DATABASE_URL does not look like a PostgreSQL connection string');
     console.warn('   Expected format: postgresql://user:password@host:5432/database');
+    console.warn('   Current value starts with: ' + databaseUrl.substring(0, 20) + '...');
   }
   
   // Copy production schema to main schema
@@ -35,6 +48,7 @@ if (isProduction) {
     console.log('✅ Switched to PostgreSQL schema for production');
   } else {
     console.error('❌ ERROR: schema.production.prisma not found');
+    console.error('   Expected at: ' + productionSchemaPath);
     process.exit(1);
   }
 } else {
