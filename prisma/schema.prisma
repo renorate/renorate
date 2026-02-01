@@ -1,16 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Production Prisma schema for PostgreSQL
+// Copy this to schema.prisma before deploying to production
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// SQLite doesn't support enums, so we use String with @default
 // UserRole: HOMEOWNER | CONTRACTOR
 // SubscriptionStatus: FREE | ACTIVE | CANCELLED | EXPIRED
 // ProjectStatus: DRAFT | PENDING | ACTIVE | COMPLETED | CANCELLED
@@ -101,6 +100,22 @@ model Project {
   updatedAt         DateTime          @updatedAt
 }
 
+model Client {
+  id          String     @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  zipCode     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Relations
+  contractorId String?
+  contractor   User?     @relation("ClientContractor", fields: [contractorId], references: [id])
+  estimates    Estimate[]
+}
+
 model Estimate {
   id          String      @id @default(cuid())
   // Legacy client fields (for backward compatibility)
@@ -164,22 +179,6 @@ model Milestone {
   isCompleted Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-}
-
-model Client {
-  id          String     @id @default(cuid())
-  name        String
-  email       String?
-  phone       String?
-  address     String?
-  zipCode     String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  // Relations
-  contractorId String?
-  contractor   User?     @relation("ClientContractor", fields: [contractorId], references: [id])
-  estimates    Estimate[]
 }
 
 model Settings {
